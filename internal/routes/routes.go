@@ -16,6 +16,12 @@ func RegisterRoutes(ctx context.Context) *gin.Engine {
 	transactionsRoute := NewTransactionsRoute(apiRegistry.GetTransactionsServer())
 
 	router := gin.Default()
+	router.POST("/health/check", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+		})
+	})
+
 	router.GET("/accounts/:accountId", accountsRoute.Get)
 	router.POST("/accounts", accountsRoute.Create)
 
