@@ -25,4 +25,4 @@ WORKDIR /app
 EXPOSE 9040
 
 RUN chmod +x migration-entrypoint.sh
-ENTRYPOINT ["/app/migration-entrypoint.sh", "api"]
+ENTRYPOINT ["/app/migration-entrypoint.sh"]
