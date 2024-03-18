@@ -11,7 +11,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/plugin/dbresolver"
 )
 
 const (
@@ -23,9 +22,6 @@ const (
 	// MysqlConnectionDSNFormat is mysql connection path format for gorm.
 	// E.g. app:password@tcp(localhost:3306)/app?charset=utf8&parseTime=True&loc=Local
 	MysqlConnectionDSNFormat = "%s:%s@%s(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local"
-
-	// WarmStorageDBResolverName string used by db resolver to use warm storage db instance
-	WarmStorageDBResolverName = "warm_storage"
 )
 
 const (
@@ -205,39 +201,6 @@ func NewDb(cr IConfigReader, options ...func(*DB) error) (*DB, error) {
 	return db, nil
 }
 
-// Replicas provide the capability to set read replicas. An array of replicas
-// i.e gorm.Dialector can be passed. The replica will be chosen randomly.
-// For the replicas, configuration for the connection also need to be passed to
-// set connection properties such as idle connections, max connections etc..
-func (db *DB) Replicas(dls []gorm.Dialector, ccfr IConnectionPoolConfigReader) error {
-	return db.instance.Use(
-		dbresolver.Register(
-			dbresolver.Config{
-				Replicas: dls,
-				Policy:   dbresolver.RandomPolicy{},
-			}).
-			SetMaxIdleConns(ccfr.GetMaxIdleConnections()).
-			SetConnMaxLifetime(ccfr.GetConnMaxLifetime()).
-			SetMaxOpenConns(ccfr.GetMaxOpenConnections()),
-	)
-}
-
-// WarmStorageDB provide the capability to set warm storage db instances.
-func (db *DB) WarmStorageDB(dls []gorm.Dialector, ccfr IConnectionPoolConfigReader) error {
-	return db.instance.Use(
-		dbresolver.Register(
-			dbresolver.Config{
-				Sources: dls,
-				Policy:  dbresolver.RandomPolicy{},
-			},
-			WarmStorageDBResolverName,
-		).
-			SetMaxIdleConns(ccfr.GetMaxIdleConnections()).
-			SetConnMaxLifetime(ccfr.GetConnMaxLifetime()).
-			SetMaxOpenConns(ccfr.GetMaxOpenConnections()),
-	)
-}
-
 // copy returns a copy of the instance of DB.
 // Note: It is not a deep copy.
 func (db *DB) copy() *DB {
@@ -332,21 +295,6 @@ func getDialector(connReader IConnectionReader) (gorm.Dialector, error) {
 	default:
 		return nil, ErrorUndefinedDialect
 	}
-}
-
-// GetDialectors is a utility to create a gorm.Dialector from ConnectionReader
-func GetDialectors(connections []IConnectionReader) ([]gorm.Dialector, error) {
-	var err error
-	var d gorm.Dialector
-	var gds = make([]gorm.Dialector, 0, len(connections))
-	for _, c := range connections {
-		if d, err = getDialector(c); err != nil {
-			return nil, err
-		} else {
-			gds = append(gds, d)
-		}
-	}
-	return gds, nil
 }
 
 // getLogLevelByDebugMode return logger log level based on debug mode.

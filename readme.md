@@ -20,10 +20,33 @@ A user transaction recording server
     - Run `make mock-gen` to generate all mock files to use in running unit test cases.
     - Run `go-build-migration` this command will build the migration binary.
     - Run `go-build-api` this command will build the api binary.
-- Start growth services with below commands.
+- Start the services with below commands.
     - Run `make up-migration` to run migrations. Uses mysql and expects `prizmo` db created.
     - Run `make go-run-api` to start the server. The server should be running at localhost:9040
 - Run `make test` to run all the test cases.
 - Run `make test-coverage` to run all the test cases and generate coverage report.
 - Run `make swagger` to generate swagger documentation.
    - Run `make swagger-serve` to serve the swagger documentation at localhost:55863/docs
+
+#### Database Setup (for without Docker)
+
+- Install mysql/postgres and create a database `prizmo` with user `root` and password `root`.
+- Kindly change config files based on your configurations.
+
+```toml
+[db]
+    debug                     = false
+    [db.ConnectionConfig]
+        dialect               = "postgres/mysql"
+        protocol              = "tcp"
+        url                   = "localhost"
+        port                  =  5432
+        username              = "root"
+        password              = "root"
+        sslMode               = "disable"
+        name                  = "prizmo"
+    [db.ConnectionPoolConfig]
+        maxOpenConnections    = 5
+        maxIdleConnections    = 5
+        connectionMaxLifetime = 0
+```
