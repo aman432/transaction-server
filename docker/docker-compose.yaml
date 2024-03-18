@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+
+  api:
+    build:
+      context: ../..
+      dockerfile: transaction-server/docker/Dockerfile.api
+    container_name: api
+    image: api
+    networks:
+      - app-network
+    ports:
+      - "9040:9040"
+    environment:
+      - APP_ENV=dev_docker
+    restart: on-failure
+    depends_on:
+      - "db"
+      - "migration"
+
+
+  migration:
+    build:
+      context: ../..
+      dockerfile: transaction-server/docker/Dockerfile.migration
+    container_name: migration
+    image: migration
+    entrypoint: ["/bin/sh", "-c", "apk add mariadb-client mariadb-connector-c; until mysqladmin ping -hdb --silent; do
+    echo \"waiting for db to start\";sleep 1;done; /app/migration-entrypoint.sh"]
+    environment:
+      - APP_ENV=dev_docker
+      - MIGRATION_CMD=up
+    restart: "no"
+    networks:
+      - app-network
+    depends_on:
+      - "db"
+
+  db:
+    image: mysql
+    platform: linux/x86_64
+    container_name: app-db
+    networks:
+      - app-network
+    environment:
+      MYSQL_DATABASE: "pizmodb"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "admin"
+      MYSQL_ROOT_PASSWORD: "password"
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  app-network:

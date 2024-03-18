@@ -1,0 +1,28 @@
+# Stage 1 - Build stage
+###########################
+FROM golang:1.19 AS build-stage
+
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY *.go ./
+ENV CGO_ENABLED 0
+RUN make go-build-api
+
+
+# Stage 2 - Binary build stage
+######################################
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
+
+COPY build/entrypoint.sh /app/
+
+ENV WORKDIR=/app
+ENV DUMB_INIT_SETSID=0
+WORKDIR /app
+
+EXPOSE 9040
+
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh", "api"]

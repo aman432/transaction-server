@@ -1,0 +1,21 @@
+[app]
+    appEnv                = "default"
+    serviceName           = "api"
+    hostname              = "localhost"
+    port                  = ":9040"
+
+[db]
+    debug                     = false
+    [db.ConnectionConfig]
+        dialect               = "mysql"
+        protocol              = "tcp"
+        url                   = "localhost"
+        port                  =  3306
+        username              = "root"
+        password              = "rootuser"
+        sslMode               = "disable"
+        name                  = "prizmo"
+    [db.ConnectionPoolConfig]
+        maxOpenConnections    = 5
+        maxIdleConnections    = 5
+        connectionMaxLifetime = 0

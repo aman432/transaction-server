@@ -1,0 +1,43 @@
+# JetBrains project folders.
+.idea/
+
+# VSCode project folder
+.vscode/*
+
+# Desktop Services Store - Mac.
+.DS_Store
+
+# Vendor modules.
+vendor/*
+
+# App Binaries.
+bin/*
+
+# App builds
+build/*
+
+# Documentation. Use `make docs` to generate
+docs/*
+
+# Dont ignore any .gitkeep files, please.
+!*.gitkeep
+
+.tmp
+
+# This needs to be sourced from the proto3 repo.
+proto
+
+# Generated protobuf files.
+rpc
+
+# Generated or local configuration files.
+configs/dev.*
+configs/test.*
+
+internal/**/mock_*.go
+
+pkg/**/*_mock.go
+
+
+# docker-compose .dev file in deployments.
+# deployments/docker-compose.dev.yml
