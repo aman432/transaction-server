@@ -1,7 +1,7 @@
 # Transaction-server
 A user transaction recording server
 #### Relevant Specs and Docs:
-
+- Postman Collection: [Link](https://documenter.getpostman.com/view/14037306/2sA2xpR8ns)
 
 #### Local Setup (Docker)
 
