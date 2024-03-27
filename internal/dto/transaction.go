@@ -19,6 +19,11 @@ var OperationTypes = [...]string{
 	"Credit_Voucher",
 }
 
+var NegativeOperationTypesString = []string{
+	"Normal_Purchase",
+	"Withdraw",
+}
+
 var NegativeOperationTypes = [...]OperationType{
 	OperationTypeNormalPurchase,
 	OperationTypeWithdraw,
@@ -88,6 +93,8 @@ type ListTransactionRequest struct {
 	AccountId string `json:"account_id"`
 	// The operation type to filter transactions.
 	OperationType string `json:"operation_type"`
+	// The operation types to filter transactions.
+	OperationTypes []string `json:"operation_types"`
 }
 
 // GetLimit returns the limit value for pagination.
@@ -108,6 +115,11 @@ func (l *ListTransactionRequest) GetAccountId() string {
 // GetOperationType returns the operation type.
 func (l *ListTransactionRequest) GetOperationType() string {
 	return l.OperationType
+}
+
+// GetOperationTypes returns the operation types.
+func (l *ListTransactionRequest) GetOperationTypes() []string {
+	return l.OperationTypes
 }
 
 // ListTransactionResponse represents the response object for listing transactions.

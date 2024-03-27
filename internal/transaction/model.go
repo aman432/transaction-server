@@ -12,6 +12,7 @@ type Transaction struct {
 	AccountId     string            `json:"account_id"`     // ID of the account associated with the transaction
 	OperationType dto.OperationType `json:"operation_type"` // Type of operation (e.g., purchase, withdrawal)
 	Amount        float64           `json:"amount"`         // Amount of the transaction
+	Balance       float64           `json:"balance"`        // balance of the transaction
 	EventDate     int64             `json:"event_date"`     // Date and time when the transaction occurred (Unix timestamp)
 }
 
@@ -46,6 +47,7 @@ func (e *Transaction) ApplyDto(val *dto.Transaction) {
 	e.AccountId = val.AccountID
 	e.OperationType = OperationFromString(val.OperationType)
 	e.Amount = setAmountSign(e.OperationType, val.Amount)
+	e.Balance = setAmountSign(e.OperationType, val.Amount)
 	e.EventDate = time.Now().Unix()
 }
 
@@ -57,6 +59,19 @@ func OperationFromString(o string) dto.OperationType {
 		}
 	}
 	return 0
+}
+
+// OperationFromStrings converts a strings representation of an operation types to its corresponding OperationType.
+func OperationFromStrings(o []string) []interface{} {
+	operationDtos := make([]interface{}, 0)
+	for _, oType := range o {
+		for i, operationType := range dto.OperationTypes {
+			if operationType == oType {
+				operationDtos = append(operationDtos, dto.OperationType(i))
+			}
+		}
+	}
+	return operationDtos
 }
 
 // setAmountSign sets the sign of the amount based on the operation type.
@@ -73,4 +88,5 @@ type IListRequest interface {
 	GetOffset() uint32
 	GetAccountId() string
 	GetOperationType() string
+	GetOperationTypes() []string
 }
