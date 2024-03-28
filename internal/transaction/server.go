@@ -53,7 +53,7 @@ func (s *Server) List(ctx *gin.Context, req *dto.ListTransactionRequest) *dto.Li
 		return &dto.ListTransactionResponse{Base: dto.GetErrorResponse(common.ErrDBQueryError, err.Error())}
 	}
 	transactionsDto := make([]*dto.Transaction, 0)
-	for _, transaction := range transactions {
+	for _, transaction := range *transactions {
 		transactionsDto = append(transactionsDto, transaction.ToDto())
 	}
 	return &dto.ListTransactionResponse{Transactions: transactionsDto, Base: &dto.Base{Success: true}}

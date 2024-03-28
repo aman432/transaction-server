@@ -126,6 +126,14 @@ test: ## Run tests
 	@echo "\n + Running tests\n"
 	@go test -v ./...
 
+.PHONY: test-integration
+test-integration: ## Run tests
+	@echo "\n + Running tests\n"
+	@go test -v ./tests/integration/...
+
+.PHONY: start-test-integration
+start-test-integration: up-migration go-run-api test-integration
+
 .PHONY: test-coverage
 test-coverage: ## Run tests with coverage
 	@echo "\n + Running tests with coverage\n"

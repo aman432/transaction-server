@@ -12,7 +12,7 @@ import (
 type ICore interface {
 	Create(ctx context.Context, model *Transaction) error
 	Get(ctx context.Context, model *Transaction, id string) error
-	List(ctx context.Context, request IListRequest) ([]*Transaction, error)
+	List(ctx context.Context, request IListRequest) (*[]Transaction, error)
 }
 
 type Core struct {
@@ -40,7 +40,7 @@ func (c Core) checkAndUpdateExistingBalances(ctx context.Context, model *Transac
 	if err != nil {
 		return err
 	}
-	if len(transactionResponseList) == 0 {
+	if len(*transactionResponseList) == 0 {
 		model.Balance = model.Amount
 	} else {
 		remainingBal, err := c.updateExistingBalances(ctx, model, transactionResponseList, err)
@@ -52,20 +52,20 @@ func (c Core) checkAndUpdateExistingBalances(ctx context.Context, model *Transac
 	return nil
 }
 
-func (c Core) updateExistingBalances(ctx context.Context, model *Transaction, transactionResponseList []*Transaction, err error) (float64, error) {
+func (c Core) updateExistingBalances(ctx context.Context, model *Transaction, transactionResponseList *[]Transaction, err error) (float64, error) {
 	remainingBal := model.Balance
-	for _, transaction := range transactionResponseList {
+	for _, transaction := range *transactionResponseList {
 		if remainingBal == 0 {
 			break
 		}
 		if math.Abs(transaction.Balance) <= remainingBal {
-			remainingBal = remainingBal - transaction.Balance
+			remainingBal = remainingBal - math.Abs(transaction.Balance)
 			transaction.Balance = 0
 		} else {
-			transaction.Balance = remainingBal - transaction.Balance
+			transaction.Balance = remainingBal - math.Abs(transaction.Balance)
 			remainingBal = 0
 		}
-		if err = c.repo.Update(ctx, transaction, "balance"); err != nil {
+		if err = c.repo.Update(ctx, &transaction, "balance"); err != nil {
 			return 0, err
 		}
 	}
@@ -76,7 +76,7 @@ func (c Core) Get(ctx context.Context, model *Transaction, id string) error {
 	return c.repo.FindByID(ctx, model, id)
 }
 
-func (c Core) List(ctx context.Context, request IListRequest) ([]*Transaction, error) {
+func (c Core) List(ctx context.Context, request IListRequest) (*[]Transaction, error) {
 	conditions := make([]clause.Expression, 0)
 	if request.GetAccountId() != "" {
 		conditions = append(conditions, clause.Eq{Column: "account_id", Value: request.GetAccountId()})
@@ -94,11 +94,11 @@ func (c Core) List(ctx context.Context, request IListRequest) ([]*Transaction, e
 		},
 		Conditions: conditions,
 	}
-	listResponse := make([]*Transaction, 0)
+	listResponse := make([]Transaction, 0)
 	if err := c.repo.FindManyWithFilters(ctx, &listResponse, repoRequest); err != nil {
 		return nil, err
 	}
-	return listResponse, nil
+	return &listResponse, nil
 }
 
 func NewCore(repo IRepo) ICore {

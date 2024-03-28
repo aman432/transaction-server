@@ -38,6 +38,7 @@ func (e *Transaction) ToDto() *dto.Transaction {
 		AccountID:     e.AccountId,
 		OperationType: e.OperationType.String(),
 		Amount:        e.Amount,
+		Balance:       e.Balance,
 		EventDate:     time.Unix(e.EventDate, 0).String(),
 	}
 }

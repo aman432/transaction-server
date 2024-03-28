@@ -53,6 +53,8 @@ type Transaction struct {
 	OperationType string `json:"operation_type"`
 	// The amount of the transaction.
 	Amount float64 `json:"amount"`
+	// The balance of the transaction.
+	Balance float64 `json:"balance"`
 	// The event date of the transaction.
 	EventDate string `json:"event_date"`
 }

@@ -78,7 +78,7 @@ func TestCore_Create_Success_With_Positive_Balance_And_NO_Existing_Balance(t *te
 	assert.NoError(t, err)
 }
 
-func TestCore_Create_Success_With_Positive_Balance_And_Existing_Negative_Balance(t *testing.T) {
+func TestCore_Create_Success_With_Positive_Balance_And_Existing_Negative_Balance_Example2(t *testing.T) {
 	td := setupTest(t)
 	defer teardownTest(td)
 
@@ -86,7 +86,8 @@ func TestCore_Create_Success_With_Positive_Balance_And_Existing_Negative_Balance
 	model := &transaction.Transaction{
 		AccountId:     "some_id",
 		OperationType: dto.OperationTypePurchaseWithInstallment,
-		Amount:        100,
+		Amount:        60,
+		Balance:       60,
 	}
 
 	td.mockRepo.EXPECT().Transaction(gomock.Any(), gomock.Any()).DoAndReturn(
@@ -96,18 +97,81 @@ func TestCore_Create_Success_With_Positive_Balance_And_Existing_Negative_Balance
 	)
 	td.mockRepo.EXPECT().FindManyWithFilters(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
 		func(ctx context.Context, models interface{}, req db2.FindManyWithFiltersRequester) error {
-			value := models.([]*transaction.Transaction)
-			value = append(value, &transaction.Transaction{
-				Amount:        -10,
+			receiver := models.(*[]transaction.Transaction)
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
 				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -50,
+				Balance:       -50,
+			})
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
+				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -23.5,
+				Balance:       -23.5,
+			})
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
+				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -18.7,
+				Balance:       -18.7,
 			})
 			return nil
 		})
-	td.mockRepo.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
+	td.mockRepo.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(2)
 	td.mockRepo.EXPECT().Create(ctx, model).Return(nil)
 
 	err := td.core.Create(ctx, model)
 	assert.NoError(t, err)
+	assert.Equal(t, float64(0), model.Balance)
+}
+
+func TestCore_Create_Success_With_Positive_Balance_And_Existing_Negative_Balance_Example3(t *testing.T) {
+	td := setupTest(t)
+	defer teardownTest(td)
+
+	ctx := context.Background()
+	model := &transaction.Transaction{
+		AccountId:     "some_id",
+		OperationType: dto.OperationTypePurchaseWithInstallment,
+		Amount:        60,
+		Balance:       60,
+	}
+
+	td.mockRepo.EXPECT().Transaction(gomock.Any(), gomock.Any()).DoAndReturn(
+		func(ctx context.Context, fc func(ctx context.Context) error) error {
+			return fc(ctx)
+		},
+	)
+	td.mockRepo.EXPECT().FindManyWithFilters(gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
+		func(ctx context.Context, models interface{}, req db2.FindManyWithFiltersRequester) error {
+			receiver := models.(*[]transaction.Transaction)
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
+				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -50,
+				Balance:       -50,
+			})
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
+				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -23.5,
+				Balance:       -23.5,
+			})
+			*receiver = append(*receiver, transaction.Transaction{
+				AccountId:     "some_id",
+				OperationType: dto.OperationTypeWithdraw,
+				Amount:        -18.7,
+				Balance:       -18.7,
+			})
+			return nil
+		})
+	td.mockRepo.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(2)
+	td.mockRepo.EXPECT().Create(ctx, model).Return(nil)
+
+	err := td.core.Create(ctx, model)
+	assert.NoError(t, err)
+	assert.Equal(t, float64(0), model.Balance)
 }
 
 func TestCore_Get_Success(t *testing.T) {
