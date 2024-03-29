@@ -24,7 +24,7 @@ A user transaction recording server
     - Run `make up-migration` to run migrations. Uses mysql and expects `prizmo` db created.
     - Run `make go-run-api` to start the server. The server should be running at localhost:9040
 - Run `make test` to run all the test cases.
-- Run `make start-test-integration` to run all the integration test cases.
+- To run all the integration test cases.
     - Run `make up-migration` to run migrations. Uses mysql and expects `prizmo` db created.
     - Run `make go-run-api` to start the server. The server should be running at localhost:9040
     - Run `make test-integration` to run all the integration test cases.
