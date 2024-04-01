@@ -133,8 +133,8 @@ func TestServer_List_Success(t *testing.T) {
 	ctx := &gin.Context{}
 	req := &dto.ListTransactionRequest{}
 
-	var transactions []*transaction.Transaction
-	td.core.EXPECT().List(ctx, req).Return(transactions, nil)
+	transactions := make([]transaction.Transaction, 0)
+	td.core.EXPECT().List(ctx, req).Return(&transactions, nil)
 
 	resp := td.server.List(ctx, req)
 	assert.True(t, resp.Success)
