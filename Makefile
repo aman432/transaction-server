@@ -124,7 +124,7 @@ mock-gen: ## generates mocks
 .PHONY: test
 test: ## Run tests
 	@echo "\n + Running tests\n"
-	@go test -v ./...
+	@go test -v ./internal/...
 
 .PHONY: test-integration
 test-integration: ## Run tests
